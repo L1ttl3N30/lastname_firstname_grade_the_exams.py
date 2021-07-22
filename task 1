@@ -1,0 +1,17 @@
+file = input('enter file name (ie. class for class.txt): ')
+file_name = file + '.txt'
+
+try:  
+  with open(file_name, 'r') as rf:
+    rf.seek(0)
+    while True:
+      r = input('do you want to read the file, y or n?: ')
+      if r == 'y':
+        print(rf.read())
+        break
+      elif r == 'n':
+        break
+      else:
+        print('invalid choice')
+except FileNotFoundError:
+  print('file cannot be found')
