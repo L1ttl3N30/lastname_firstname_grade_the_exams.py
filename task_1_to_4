@@ -1,0 +1,95 @@
+# TASK 1 
+while True:
+  file = input('enter file name (ie. class for class.txt): ')
+  file_name = file + '.txt' #need to work more on this as a path to the folder
+
+  try:  
+    with open(file_name, 'r') as rf:
+      rf.seek(0)
+      res = input('do you want to read the file before get its analysis, y or n?: ')
+      if res == 'y':
+        print("this is the file you want to read: \n" + rf.read())
+        print("*************ANALYZING*************")
+        break
+      elif res == 'n':
+        print("*************ANALYZING*************")
+        break
+      else:
+        print('invalid choice')
+  except FileNotFoundError:
+    print('File cannot be found')
+# or can use recursive function
+
+
+
+
+# TASK 2
+def invalid_line_check(student):
+  student_element = student.split(',')
+  student_id = student_element[0]
+  global invalid_line
+  global student_to_grade
+  if len(student_element) != 26:
+    print('Invalid data line: does not contain exactly 26 values')
+    print(student)
+    invalid_line += 1
+    # return invalid_line
+  elif bool(re.match("[N][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]",student_id)) == False:
+    print('Invalid id')
+    print(student)
+    invalid_line += 1
+    # return invalid_line
+  else:
+    student_to_grade.append(student)
+    # return invalid_line
+
+
+
+with open(file_name, 'r') as rf:
+  rf.seek(0)
+  lines = rf.read().splitlines()
+  line_count = 0
+  invalid_line = 0
+  student_to_grade =[]
+  for line in lines:
+    line_count += 1
+    invalid_line_check(line)
+
+  print('Total number of lines: {}'.format(line_count))
+  print('Number of valid lines: {}'.format(line_count - invalid_line))
+  print('Number of invalid lines: {}'.format(invalid_line))
+
+
+
+# TASK 3
+  class_grade = []
+  rf.seek(0)
+  correct_ans="B,A,D,D,C,B,D,A,C,C,D,B,A,B,A,C,B,D,A,C,A,A,B,D,D"
+  ans_key = correct_ans.split(",")
+  # correct_ans="B,A,,D,C,B,D,A,C,C,,B,A,B,A,C,B,D,A,,A,,B,D,D"          21
+  for line in student_to_grade:
+    line_element = line.split(',')
+    student_ans = line_element[1:]
+    student_grade = 0
+    for i in range(25):
+      if student_ans[i] == "":
+        pass
+      elif student_ans[i] == ans_key[i]:
+        student_grade += 4
+      else:
+        student_grade -= 1
+      
+    class_grade.append(student_grade)
+  print('class average grade is: {}'.format(statistics.mean(class_grade)))
+  print('class highest score is: {} and the lowest score is: {}'.format(max(class_grade),min(class_grade)))
+  print('class range of score is: {}'.format(max(class_grade)-min(class_grade)))
+  print('class median score is: {}'.format(statistics.median(class_grade)))
+
+
+
+# TASK 4
+  with open(file + '_statistics.txt', 'w+') as wf:
+    for student in student_to_grade:
+      wf.write(student[:10] + "{} \n".format(class_grade[student_to_grade.index(student)]))
+# with open(file + '_statistics.txt', 'r') as rf:
+#   print("Students' grades in this class: \n" + rf.read())
