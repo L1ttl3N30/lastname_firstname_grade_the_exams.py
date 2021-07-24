@@ -1,0 +1,79 @@
+import pandas as pd
+import re, statistics, os
+
+path = os.getcwd() + '/data/' #for colab or jupyter
+# path = os.getcwd() + '\\data\\' # for windows cmd
+
+# Open file
+while True:
+  file = input('enter file name (ie. class for class.txt): ')
+  file_name = path + file + '.txt' #need to work more on this as a path to the folder
+
+  try:  
+    data = pd.read_csv(file_name, header=None,na_filter=False,sep='\n')
+    res = input('do you want to read the file before get its analysis, y or n?: ')
+    if res == 'y':
+      print("this is the file you want to read: \n" + rf.read())
+      print("*************ANALYZING*************")
+      print("...................................")
+      # print("***************DONE****************")
+      # print("############STATISTICS#############")
+      break
+    elif res == 'n':
+      print("*************ANALYZING*************")
+      print("...................................")
+      # print("***************DONE****************")
+      # print("############STATISTICS#############")
+      break
+    else:
+      print('invalid choice')
+  except FileNotFoundError:
+    print('File cannot be found')
+   
+   
+#Searching for invalid data   
+data = pd.read_csv(file_name, header=None,na_filter=False,sep='\n')
+valid_lines = pd.DataFrame([])
+students_id = pd.Series([],dtype=object)
+for i in range(data.size):
+  student = pd.DataFrame([data.loc[i][0]], columns=['Ids and answers                                 '])
+  student_id = pd.Series([student.loc[0][0].split(',')[0]], dtype=object)
+  if len(data.loc[i][0].split(',')) != 26:
+    print('Invalid line of data - does not contain exactly 26 values: \n', student.loc[0][0])
+  elif bool(re.match("[N][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]",student.loc[0][0].split(',')[0])) == False:
+    print('Invalid line of data - N# is not valid: \n', student.loc[0][0])
+  else:
+    valid_lines = valid_lines.append(student, ignore_index=True)
+    students_id = students_id.append(student_id, ignore_index=True)
+print("***************DONE****************")
+print("############STATISTICS#############")
+
+
+#Analyzing data
+correct_ans = "B,A,D,D,C,B,D,A,C,C,D,B,A,B,A,C,B,D,A,C,A,A,B,D,D"
+key = pd.Series(correct_ans.split(','))
+class_grade = pd.Series(dtype=object)
+for i in range(valid_lines.size):
+  grade = pd.Series([0],dtype=object)
+  ans = pd.Series(valid_lines.loc[i][0].split(',')[1:])
+  for j in range(25):
+    if ans[j] == "":
+      pass
+    elif ans[j] == key[j]:
+      grade += 4
+    else:
+      grade -= 1
+  class_grade = class_grade.append(grade,ignore_index=True)
+  
+  
+#Show analysis  
+statis = pd.DataFrame([data.size - valid_lines.size,valid_lines.size,data.size,max(class_grade),min(class_grade),max(class_grade)-min(class_grade),statistics.mean(class_grade),statistics.median(class_grade)],
+                      columns= ['values'], 
+                      index=['Invalid lines: ', 'Valid lines: ', 'Total no. of lines: ', "Max score: ","Min score: ",'Score range: ','Average score(floor): ','Median Score: '],
+                      dtype=int)
+print(statis)
+
+#Save results
+result = pd.DataFrame({'students ID':students_id,'Grade':class_grade})
+result_file = file + '_statistics.txt'
+result.to_csv(result_file, header=None, index=None, sep=',', mode='a')
